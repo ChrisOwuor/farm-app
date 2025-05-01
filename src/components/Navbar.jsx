@@ -18,8 +18,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
 const navigation = [
-  { name: "Home", href: "/", current: true },
-  { name: "Products", href: "/products", current: false },
+  { name: "Products", href: "/products", roles: ["buyer"], current: false },
   { name: "Dashboard", href: "/dashboard", roles: ["admin"] }, // Only for admins & sellers
 ];
 
@@ -28,16 +27,21 @@ const userMenuLinks = [
   { name: "Settings", href: "/settings", roles: ["admin", "buyer"] },
   { name: "Orders", href: "/orders", roles: ["buyer"] },
   { name: "My Orders", href: "/orders/farmer", roles: ["farmer"] },
+  { name: "Withdrawal", href: "/farmer/withdrawal", roles: ["admin"] },
   { name: "Payment", href: "/payment", roles: ["farmer"] }, // Only for normal users
   { name: "My products", href: "/my-products", roles: ["farmer"] }, // Only sellers
-  { name: "Add Product", href: "/add-product", roles: ["farmer"] }, // Only sellers
+  { name: "Add Product", href: "/add-product", roles: ["farmer"] }, //
+  // Only admins
+  { name: "All Orders", href: "/all/orders", roles: ["admin"] }, // Only admins
+  //  Only sellers
+  { name: "Help requests", href: "/help", roles: ["admin"] },
 ];
 
-function classNames (...classes) {
+function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Navbar () {
+export default function Navbar() {
   const { user, logout } = useAuth();
   const filteredNavigation = navigation.filter(
     (link) => !link.roles || link.roles.includes(user?.role)
@@ -73,11 +77,7 @@ export default function Navbar () {
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
               <Link to="/">
-                <img
-                  alt="Farm App"
-                  src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                  className="h-8 w-auto"
-                />
+                <img alt="Farm App" src="/newlogo.png" className="h-8 w-auto" />
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:block">
@@ -109,16 +109,21 @@ export default function Navbar () {
               </Link>
             ) : (
               <>
-                {user.role === 'buyer' && <Link to={"/cart"} className="group -m-2 flex items-center p-2">
-                  <ShoppingBagIcon
-                    aria-hidden="true"
-                    className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
-                  />
-                  <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                    {cartItems.length}
-                  </span>
-                  <span className="sr-only">items in cart, view bag</span>
-                </Link>}
+                {user.role === "buyer" && (
+                  <Link
+                    to={"/cart"}
+                    className="group -m-2 flex items-center p-2"
+                  >
+                    <ShoppingBagIcon
+                      aria-hidden="true"
+                      className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
+                    />
+                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
+                      {cartItems.length}
+                    </span>
+                    <span className="sr-only">items in cart, view bag</span>
+                  </Link>
+                )}
 
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3 ">
@@ -128,7 +133,7 @@ export default function Navbar () {
                       <span className="sr-only">Open user menu</span>
                       <img
                         alt=""
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                        src="/public/frofile.jpg"
                         className="size-8 rounded-full"
                       />
                     </MenuButton>

@@ -4,10 +4,8 @@ import { useAuth } from "./AuthContext";
 
 const CartContext = createContext(null);
 
-
-
 export const CartProvider = ({ children }) => {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState(() => {
     const storedItems = localStorage.getItem("cartItems");
     return storedItems ? JSON.parse(storedItems) : [];
@@ -18,7 +16,13 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = (product, quantity) => {
-
+    if (quantity < 1) {
+      toast.error("Quantity must be at least 1", {
+        autoClose: 1000,
+        position: "bottom-left",
+      });
+      return;
+    }
     if (user === null) {
       toast.error("Please login to add items to the cart", {
         autoClose: 1000,
@@ -61,7 +65,6 @@ export const CartProvider = ({ children }) => {
     setCartItems(updatedItems);
     updateLocalStorage(updatedItems); // Ensure localStorage is updated
   };
-
 
   const value = {
     updateCartItemQuantity,

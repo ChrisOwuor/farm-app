@@ -15,25 +15,22 @@ export default function OrdersFarmer() {
       const response = await fetch(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/api/orders/farmer?page=${page}&limit=2`, // Adjust the limit as needed
+        }/api/orders/farmer?page=${page}&limit=2`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch orders");
-      }
+      if (!response.ok) throw new Error("Failed to fetch orders");
 
       const data = await response.json();
-
       setOrders(data.orders || []);
       setCurrentPage(data.currentPage || 1);
       setTotalPages(data.totalPages || 1);
     } catch (error) {
-      setError("Failed to load orders");
       console.error(error);
+      setError("Failed to load orders");
     } finally {
       setLoading(false);
     }
@@ -41,18 +38,14 @@ export default function OrdersFarmer() {
 
   useEffect(() => {
     fetchOrders(currentPage);
-  }, [currentPage]); // Re-fetch data when page changes
+  }, [currentPage]);
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
   const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -77,10 +70,10 @@ export default function OrdersFarmer() {
                     Placed on {FormatDateUTC(order.createdAt)}
                   </p>
                   <p className="text-gray-600">
-                    Placed by {order?.buyerId.name}
+                    Placed by {order?.buyerId?.name}
                   </p>
                   <p className="text-gray-600">
-                    Contact Information {order?.buyerId.phoneNumber}
+                    Contact Information: {order?.buyerId?.phoneNumber || "N/A"}
                   </p>
                   <p>
                     Payment Status{" "}
@@ -109,40 +102,39 @@ export default function OrdersFarmer() {
                     </span>
                   </span>
                   <p className="mt-2 text-lg font-bold">
-                    Ksh {order.totalAmount.toFixed(2)}
+                    Ksh{" "}
+                    {order.amount
+                      ? order.amount.toFixed(2)
+                      : (order.subtotal + order.tax + order.shipping).toFixed(
+                          2
+                        )}
                   </p>
                 </div>
               </div>
 
               <div className="border-t pt-4">
                 <h3 className="font-medium mb-2">Delivery Details</h3>
-                <div className="space-y-2">
-                  <div className="flex flex-col text-sm">
-                    <span> County :{order?.buyerId.address.county}</span>
-                  </div>
-                  <div className="flex flex-col text-sm">
-                    <span> Street :{order?.buyerId.address.street}</span>
-                  </div>
-                  <div className="flex flex-col text-sm">
-                    <span> Town :{order?.buyerId.address.town}</span>
-                  </div>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    County: {order?.buyerId?.address?.county || "Not Availed"}
+                  </p>
+                  <p>
+                    Street: {order?.buyerId?.address?.street || "Not Availed"}
+                  </p>
+                  <p>Town: {order?.buyerId?.address?.town || "Not Availed"}</p>
                 </div>
               </div>
 
               <div className="border-t pt-4">
                 <h3 className="font-medium mb-2">Order Items</h3>
-                <div className="space-y-2">
-                  {order.items.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex justify-between text-sm"
-                    >
+                <div className="space-y-2 text-sm">
+                  {order.items.map((item, index) => (
+                    <div key={index} className="flex justify-between">
                       <span>
-                        {item.quantity}x {item.productId.name}
+                        {item.quantity}x{" "}
+                        {item.product?.name || "Unknown Product"}
                       </span>
-                      <span>
-                        Ksh {(item.quantity * item.productId.price).toFixed(2)}
-                      </span>
+                      <span>Ksh {(item.quantity * item.price).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
@@ -150,17 +142,18 @@ export default function OrdersFarmer() {
 
               <div className="border-t pt-4">
                 <h3 className="font-medium mb-2">Other Charges</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
                     <span>Shipping</span>
                     <span>Ksh {order.shipping.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between">
                     <span>Tax</span>
                     <span>Ksh {order.tax.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
+
               <div className="mt-4 flex justify-end space-x-4">
                 <button className="text-green-600 hover:text-green-700 font-medium">
                   View Details
@@ -174,7 +167,6 @@ export default function OrdersFarmer() {
         </div>
       )}
 
-      {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-6">
           <button
@@ -188,11 +180,9 @@ export default function OrdersFarmer() {
           >
             Previous
           </button>
-
           <span className="text-lg">
             Page {currentPage} of {totalPages}
           </span>
-
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}

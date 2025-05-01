@@ -119,16 +119,7 @@ export default function MyProducts() {
                   Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Sales
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Revenue
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  Quantity
                 </th>
               </tr>
             </thead>
@@ -152,9 +143,6 @@ export default function MyProducts() {
                           <div className="text-sm font-medium text-gray-900">
                             {product.name}
                           </div>
-                          {/* <div className="text-sm text-gray-500">
-                            {product.description}
-                          </div> */}
                         </div>
                       </div>
                     </td>
@@ -166,37 +154,13 @@ export default function MyProducts() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        ${product.price}
+                        Ksh {product.price}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">4units</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">0 units</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-green-600">$1200</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        className="text-green-600 hover:text-green-900 mr-3"
-                        onClick={() => {
-                          // Handle edit functionality
-                          console.log("Edit product:", product._id);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={() => {
-                          // Handle delete functionality
-                          console.log("Delete product:", product._id);
-                        }}
-                      >
-                        Delete
-                      </button>
+                      <div className="text-sm text-gray-900">
+                        {product.quantity}
+                      </div>
                     </td>
                   </tr>
                 ))}

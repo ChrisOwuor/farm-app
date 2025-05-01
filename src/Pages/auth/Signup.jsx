@@ -10,30 +10,175 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
-    phoneNumber: "",
+    confirmPassword: "",
+    phoneNumber: "+254",
     role: userType,
   });
 
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const validateField = (name, value) => {
+    let errorMessage = "";
+
+    switch (name) {
+      case "firstName":
+      case "lastName":
+        if (!value.trim()) {
+          errorMessage = `${
+            name === "firstName" ? "First" : "Last"
+          } name is required.`;
+        } else if (/\d/.test(value)) {
+          errorMessage = `${
+            name === "firstName" ? "First" : "Last"
+          } name should not contain numbers.`;
+        }
+        break;
+      case "phoneNumber":
+        if (!value.trim()) {
+          errorMessage = "Phone number is required.";
+        } else if (!value.startsWith("+254")) {
+          errorMessage = "Phone number must start with +254.";
+        } else if (value.length !== 13) {
+          errorMessage = "Please enter 9 digits after +254.";
+        } else if (!/^\+254\d{9}$/.test(value)) {
+          errorMessage = "Phone number must contain only digits after +254.";
+        }
+        break;
+      case "email":
+        if (!value.trim()) {
+          errorMessage = "Email address is required.";
+        } else {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            errorMessage = "Please enter a valid email address.";
+          }
+        }
+        break;
+      case "password":
+        if (!value) {
+          errorMessage = "Password is required.";
+        } else if (value.length < 6) {
+          errorMessage = "Password must be at least 6 characters long.";
+        }
+        break;
+      case "confirmPassword":
+        if (!value) {
+          errorMessage = "Please confirm your password.";
+        } else if (value !== formData.password) {
+          errorMessage = "Passwords do not match.";
+        }
+        break;
+      default:
+        break;
+    }
+
+    return errorMessage;
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Special handling for phone number to maintain the +254 prefix
+    if (name === "phoneNumber") {
+      // If user tries to delete the +254 prefix, prevent it
+      if (!value.startsWith("+254")) {
+        return;
+      }
+
+      // Limit to +254 plus 9 digits
+      if (value.length > 13) {
+        return;
+      }
+
+      // Only allow digits after +254
+      if (value.length > 4 && !/^\+254\d*$/.test(value)) {
+        return;
+      }
+    }
+
+    // Prevent numbers in name fields
+    if ((name === "firstName" || name === "lastName") && /\d/.test(value)) {
+      setFieldErrors({
+        ...fieldErrors,
+        [name]: `${
+          name === "firstName" ? "First" : "Last"
+        } name should not contain numbers.`,
+      });
+      return;
+    }
+
+    const errorMessage = validateField(name, value);
+
+    setFieldErrors({
+      ...fieldErrors,
+      [name]: errorMessage,
+    });
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // If updating password, also validate confirmPassword
+    if (name === "password" && formData.confirmPassword) {
+      const confirmPasswordError =
+        formData.confirmPassword !== value ? "Passwords do not match." : "";
+      setFieldErrors((prev) => ({
+        ...prev,
+        confirmPassword: confirmPasswordError,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validate all fields
+    let hasErrors = false;
+    const newFieldErrors = {};
+
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "role") {
+        const errorMessage = validateField(key, value);
+        newFieldErrors[key] = errorMessage;
+        if (errorMessage) {
+          hasErrors = true;
+        }
+      }
+    });
+
+    setFieldErrors(newFieldErrors);
+
+    if (hasErrors) {
+      setError("Please correct the errors before submitting.");
+      return;
+    }
+
     setLoading(true);
 
-    // Basic validation
-
     try {
+      // Create the request body with combined name
+      const requestBody = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        role: formData.role,
+      };
+
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`,
         {
@@ -41,21 +186,21 @@ export default function Signup() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(requestBody),
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || "Registration failed");
       }
 
-      const data = await response.json();
       toast.success(data.message || "Account created successfully!", {
         position: "top-right",
         autoClose: 1500,
       });
-      // Delay navigation to show toast
+
       setTimeout(() => {
         navigate("/auth/login");
       }, 1500);
@@ -99,27 +244,68 @@ export default function Signup() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 gap-6 ">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label
-                  htmlFor="name"
+                  htmlFor="firstName"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Full name
+                  First name
                 </label>
                 <div className="mt-1">
                   <input
-                    id="name"
-                    name="name"
+                    id="firstName"
+                    name="firstName"
                     type="text"
-                    required
-                    value={formData.name}
+                    value={formData.firstName}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    required
+                    className={`appearance-none block w-full px-3 py-2 border ${
+                      fieldErrors.firstName
+                        ? "border-red-300"
+                        : "border-gray-300"
+                    } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500`}
+                    placeholder="John"
                   />
+                  {fieldErrors.firstName && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {fieldErrors.firstName}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Last name
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required
+                    className={`appearance-none block w-full px-3 py-2 border ${
+                      fieldErrors.lastName
+                        ? "border-red-300"
+                        : "border-gray-300"
+                    } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500`}
+                    placeholder="Doe"
+                  />
+                  {fieldErrors.lastName && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {fieldErrors.lastName}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
+
             <div>
               <label
                 htmlFor="phoneNumber"
@@ -132,11 +318,25 @@ export default function Signup() {
                   id="phoneNumber"
                   name="phoneNumber"
                   type="tel"
-                  required
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  required
+                  className={`appearance-none block w-full px-3 py-2 border ${
+                    fieldErrors.phoneNumber
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500`}
+                  placeholder="+254700000000"
                 />
+                {fieldErrors.phoneNumber ? (
+                  <p className="mt-1 text-sm text-red-600">
+                    {fieldErrors.phoneNumber}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Format: +254 followed by 9 digits
+                  </p>
+                )}
               </div>
             </div>
 
@@ -153,11 +353,19 @@ export default function Signup() {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  required
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  required
+                  className={`appearance-none block w-full px-3 py-2 border ${
+                    fieldErrors.email ? "border-red-300" : "border-gray-300"
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500`}
+                  placeholder="example@email.com"
                 />
+                {fieldErrors.email && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -173,11 +381,49 @@ export default function Signup() {
                   id="password"
                   name="password"
                   type="password"
-                  required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  required
+                  className={`appearance-none block w-full px-3 py-2 border ${
+                    fieldErrors.password ? "border-red-300" : "border-gray-300"
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500`}
+                  placeholder="Min 6 characters"
                 />
+                {fieldErrors.password && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {fieldErrors.password}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Confirm Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  className={`appearance-none block w-full px-3 py-2 border ${
+                    fieldErrors.confirmPassword
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500`}
+                  placeholder="Confirm your password"
+                />
+                {fieldErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {fieldErrors.confirmPassword}
+                  </p>
+                )}
               </div>
             </div>
 

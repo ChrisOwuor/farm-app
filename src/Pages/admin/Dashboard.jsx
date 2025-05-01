@@ -7,6 +7,7 @@ import {
   HomeIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  DocumentTextIcon,
 } from "@heroicons/react/24/outline";
 
 export default function Dashboard() {
@@ -17,7 +18,9 @@ export default function Dashboard() {
     { name: "Users", href: "/dashboard/users", icon: UsersIcon },
     { name: "Sales Report", href: "/dashboard/sales", icon: ChartBarIcon },
     { name: "Inventory", href: "/dashboard/inventory", icon: CubeIcon },
+    { name: "Reports", href: "/dashboard/reports", icon: DocumentTextIcon }, // New Reports navigation item
   ];
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth <= 768) {
@@ -34,6 +37,7 @@ export default function Dashboard() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
   return (
     <div className="flex h-screen bg-gray-100 text-gray-900">
       {/* Sidebar */}

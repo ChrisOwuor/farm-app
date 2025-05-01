@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { ToastContainer } from "react-toastify";
 
 // This would typically come from an API or database
 
@@ -54,7 +55,7 @@ export default function SingleProduct() {
         <div>
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
           <p className="text-2xl font-bold text-green-600 mb-4">
-            ${product.price}
+            Ksh {product.price}
           </p>
           <p className="text-gray-600 mb-6">{product.description}</p>
 
@@ -62,28 +63,6 @@ export default function SingleProduct() {
             <h2 className="text-xl font-semibold mb-2">Product Category</h2>
             <p className="text-gray-600">{product.category}</p>
           </div>
-
-          {/* <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Specifications</h2>
-            <ul className="space-y-2">
-              <li>
-                <span className="font-medium">Origin:</span>{" "}
-                {product.specifications.origin}
-              </li>
-              <li>
-                <span className="font-medium">Weight:</span>{" "}
-                {product.specifications.weight}
-              </li>
-              <li>
-                <span className="font-medium">Shelf Life:</span>{" "}
-                {product.specifications.shelfLife}
-              </li>
-              <li>
-                <span className="font-medium">Organic:</span>{" "}
-                {product.specifications.organic ? "Yes" : "No"}
-              </li>
-            </ul>
-          </div> */}
 
           <div className="flex items-center space-x-4">
             <input
@@ -104,6 +83,7 @@ export default function SingleProduct() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

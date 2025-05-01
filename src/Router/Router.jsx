@@ -24,6 +24,10 @@ import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
 import ProtectedRoute from "../components/ProtectedRoute";
 import OrdersFarmer from "../Pages/OrdersFarmer";
+import Reports from "../Pages/admin/Reports";
+import HelpRequestsPage from "../Pages/HelpRequestsPage";
+import WithdrawalsPage from "../Pages/Withdrawals";
+import AllOrders from "../Pages/AllOrders";
 
 export default function Router() {
   return (
@@ -47,6 +51,9 @@ export default function Router() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/farmer" element={<OrdersFarmer />} />
+            <Route path="/help" element={<HelpRequestsPage />} />
+            <Route path="/farmer/withdrawal" element={<WithdrawalsPage />} />
+            <Route path="/all/orders" element={<AllOrders/>} />
 
             <Route path="/payment" element={<Payment />} />
             <Route
@@ -68,6 +75,8 @@ export default function Router() {
                 </ProtectedRoute>
               }
             >
+              {" "}
+              <Route path="reports" element={<Reports />} />{" "}
               <Route index element={<Users />} />
               <Route path="users" element={<Users />} />
               <Route path="sales" element={<SalesReport />} />

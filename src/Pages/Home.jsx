@@ -1,10 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { products } from "../constants/Products";
+import HelpRequestForm from "../components/HelpRequestForm";
 
-export default function Home () {
-  const featuredProducts = products.slice(0, 3);
-
+export default function Home() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -12,7 +10,7 @@ export default function Home () {
         <div className="absolute inset-0 ">
           <img
             className="h-full w-full object-cover "
-            src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80"
+            src="/public/bg.jpg"
             alt="Farm landscape"
           />
           <div className="absolute inset-0 bg-gray-900/50 z-0" />
@@ -37,38 +35,7 @@ export default function Home () {
       </div>
 
       {/* Featured Products */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">
-          Featured Products
-        </h2>
-        <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredProducts.map((product) => (
-            <Link
-              key={product.id}
-              to={`/`}
-              className="group"
-            >
-              <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="h-64 w-full object-cover object-center group-hover:opacity-75"
-                />
-              </div>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                {product.name}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {product.description}
-              </p>
-              <p className="mt-2 text-lg font-medium text-green-600">
-                ${product.price}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </div>
-
+      <HelpRequestForm />
       {/* Features Section */}
       <div className="bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
